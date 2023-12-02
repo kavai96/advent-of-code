@@ -1,12 +1,12 @@
 const { readFileAndCreateArray } = require("../helper/readFile");
 
-const LIMITS = {
-  red: 12,
-  green: 13,
-  blue: 14,
-};
-
 async function day2Part1() {
+  const LIMITS = {
+    red: 12,
+    green: 13,
+    blue: 14,
+  };
+
   const filePath = "./src/input/input2.txt";
   const fileContent = await readFileAndCreateArray(filePath);
 
@@ -17,9 +17,9 @@ async function day2Part1() {
       const [game, bags] = text.split(":");
       const [_, gameId] = game.split(" ");
 
-      const bagArray = bags.split(/[;,]/).map((bag) => bag.trim());
+      const bagElements = bags.split(/[;,]/).map((bag) => bag.trim());
 
-      const limitExceeded = bagArray.some((bag) => {
+      const limitExceeded = bagElements.some((bag) => {
         const [amount, color] = bag.split(" ");
 
         return LIMITS[color] < parseInt(amount);
@@ -32,7 +32,7 @@ async function day2Part1() {
       result += parseInt(gameId);
     });
 
-  console.log("Result:", result);
+  return result;
 }
 
 async function day2Part2() {
@@ -45,25 +45,25 @@ async function day2Part2() {
     .map((text) => {
       const [_, bags] = text.split(":");
 
-      const baseValues = {
+      const maxBagValues = {
         red: 0,
         green: 0,
         blue: 0,
       };
 
-      const bagArray = bags.split(/[;,]/).map((bag) => bag.trim());
+      const bagElements = bags.split(/[;,]/).map((bag) => bag.trim());
 
-      bagArray.forEach((bag) => {
+      bagElements.forEach((bag) => {
         const [amount, color] = bag.split(" ");
 
         const parsedAmount = parseInt(amount);
 
-        if (baseValues[color] < parsedAmount) {
-          baseValues[color] = parsedAmount;
+        if (maxBagValues[color] < parsedAmount) {
+          maxBagValues[color] = parsedAmount;
         }
       });
 
-      return baseValues;
+      return maxBagValues;
     })
     .map((calculated) => {
       return Object.values(calculated).reduce(
@@ -71,12 +71,11 @@ async function day2Part2() {
         1
       );
     })
-
     .forEach((power) => {
       result += power;
     });
 
-  console.log("Result:", result);
+  return result;
 }
 
 module.exports = { day2Part1, day2Part2 };
