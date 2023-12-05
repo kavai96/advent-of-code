@@ -8,7 +8,7 @@ async function day3part1() {
   const filePath = "./src/input/input3.txt";
   const fileContent = await readFileAndCreateArray(filePath);
 
-  const test = fileContent.reduce((acc, current) => {
+  const matrix = fileContent.reduce((acc, current) => {
     const characters = current.split("").filter((char) => char !== "\r");
     acc.push(characters);
     return acc;
@@ -20,7 +20,7 @@ async function day3part1() {
 
   let tempNumber = "";
 
-  test.forEach((row, i) => {
+  matrix.forEach((row, i) => {
     row.forEach((char, j) => {
       if ((char === "." || !isNumber(char)) && tempNumber.length > 0) {
         if (valid) {
@@ -52,7 +52,7 @@ async function day3part1() {
 
       if (valid) return;
 
-      valid = checkNeighbours(i, j, test);
+      valid = checkNeighbours(i, j, matrix);
     });
   });
 
@@ -80,7 +80,7 @@ async function day3part2() {
   const filePath = "./src/input/input3.txt";
   const fileContent = await readFileAndCreateArray(filePath);
 
-  const test = fileContent.reduce((acc, current) => {
+  const matrix = fileContent.reduce((acc, current) => {
     const characters = current.split("").filter((char) => char !== "\r");
     acc.push(characters);
     return acc;
@@ -88,19 +88,17 @@ async function day3part2() {
 
   let sum = 0;
 
-  test.forEach((row, i) => {
+  matrix.forEach((row, i) => {
     row.forEach((char, j) => {
       if (char !== "*") return;
 
-      const neighbours = countNeighbours(i, j, test);
+      const neighbours = countNeighbours(i, j, matrix);
 
       if (neighbours.length !== 2) return;
 
       const [ratio1, ratio2] = neighbours;
 
-      sum += ratio1 * ratio2;
-
-      console.log("neighbours", neighbours);
+      sum += parseInt(ratio1) * parseInt(ratio2);
     });
   });
 
@@ -135,8 +133,8 @@ const generateNeighbourCoordinates2 = (i, j) => {
   ];
 };
 
-const countNeighbours = (i, j, content) => {
-  const coordinates = generateNeighbourCoordinates2(i, j);
+const countNeighbours = (starI, starJ, content) => {
+  const coordinates = generateNeighbourCoordinates2(starI, starJ);
 
   let valid = false;
 
@@ -152,7 +150,7 @@ const countNeighbours = (i, j, content) => {
 
     if (!isNumber(field) && tempNumber.length > 0) {
       if (valid) {
-        acc.push(tempNumber);
+        if (tempNumber.length > 3) acc.push(tempNumber);
       }
 
       tempNumber = "";
@@ -161,9 +159,13 @@ const countNeighbours = (i, j, content) => {
       return acc;
     }
 
-    if (curr.j === 3 && tempNumber.length > 0) {
-      if (valid) {
-        acc.push(tempNumber + field);
+    if (curr.j - starJ === 3) {
+      if (valid && !isNumber(field) && tempNumber.length > 0) {
+        if (tempNumber.length > 3) acc.push(tempNumber);
+      }
+
+      if (valid && isNumber(field) && tempNumber.length > 0) {
+        if (tempNumber.length > 3) acc.push(tempNumber + field);
       }
 
       tempNumber = "";
@@ -178,22 +180,17 @@ const countNeighbours = (i, j, content) => {
 
     if (valid) return acc;
 
-    valid = checkNeighbours2(curr.i, curr.j, content);
+    valid = checkNeighbours2(curr.i, curr.j, starI, starJ);
 
     return acc;
   }, []);
 };
 
-const checkNeighbours2 = (i, j, content) => {
+const checkNeighbours2 = (i, j, starI, starJ) => {
   const coordinates = generateNeighbourCoordinates(i, j);
 
   return coordinates.some((cr) => {
-    const first = content[cr.i];
-    if (!first) return false;
-
-    const field = first[cr.j];
-
-    return field && !isNumber(field) && field === "*";
+    return cr.i === starI && cr.j === starJ;
   });
 };
 
