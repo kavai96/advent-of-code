@@ -1,11 +1,12 @@
 const fs = require("fs");
 const axios = require("axios");
 
-const BASE_API = "https://adventofcode.com/2023/day";
 //1/input
 const DAY = process.argv[2];
 
 const SESSION = process.env.SESSION;
+const YEAR = process.env.YEAR;
+const BASE_API = `https://adventofcode.com/${YEAR}/day`;
 
 const headers = {
   Accept: "text/plain",
@@ -22,7 +23,7 @@ async function getTextFile() {
     // Check if the request was successful (status code 200)
     if (response.status === 200) {
       // Save the text file content to a local file
-      fs.writeFileSync(`./src/input/input${DAY}.txt`, response.data);
+      fs.writeFileSync(`./src/input/${YEAR}/input${DAY}.txt`, response.data);
 
       console.log("Text file has been successfully fetched and saved.");
     } else {

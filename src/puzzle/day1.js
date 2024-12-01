@@ -1,4 +1,4 @@
-const { readFileAndCreateArray } = require("../helper/readFile");
+const { readFileAndCreateArray } = require("../../helper/readFile");
 
 const allowedNumbers = {
   one: "1",
@@ -17,7 +17,7 @@ const isNumber = (character) => {
 };
 
 async function day1() {
-  const filePath = "./src/input/input1.txt";
+  const filePath = "./src/input/2023/input1.txt";
   const fileContent = await readFileAndCreateArray(filePath);
 
   const result = fileContent

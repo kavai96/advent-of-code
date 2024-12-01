@@ -1,7 +1,7 @@
-const { readFileAndCreateArray } = require("../helper/readFile");
+const { readFileAndCreateArray } = require("../../helper/readFile");
 
 async function day4Part1() {
-  const filePath = "./src/input/input4.txt";
+  const filePath = "./src/input/2023/input4.txt";
   const fileContent = await readFileAndCreateArray(filePath);
 
   const result = fileContent

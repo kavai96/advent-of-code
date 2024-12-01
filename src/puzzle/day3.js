@@ -1,11 +1,11 @@
-const { readFileAndCreateArray } = require("../helper/readFile");
+const { readFileAndCreateArray } = require("../../helper/readFile");
 
 const isNumber = (character) => {
   return /\d/.test(character);
 };
 
 async function day3part1() {
-  const filePath = "./src/input/input3.txt";
+  const filePath = "./src/input/2023/input3.txt";
   const fileContent = await readFileAndCreateArray(filePath);
 
   const matrix = fileContent.reduce((acc, current) => {
