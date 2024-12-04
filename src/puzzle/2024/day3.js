@@ -4,45 +4,41 @@ const matchForMultiply = /mul\((\d+),(\d+)\)/g;
 
 const blockedParts = /don't\(\).*?do\(\)/g;
 
-function multiplyValues(numbers) {
-  return numbers.reduce((init, actual) => {
-    init += actual.firstNumber * actual.secondNumber;
-    return init;
+const multiplyValues = (numbers) => {
+  return numbers.reduce((sum, { firstNumber, secondNumber }) => {
+    return sum + firstNumber * secondNumber;
   }, 0);
-}
+};
 
-function extractValues(commands) {
+const extractValues = (commands) => {
   return commands.map((match) => ({
-    firstNumber: match[1],
-    secondNumber: match[2],
+    firstNumber: Number(match[1]),
+    secondNumber: Number(match[2]),
   }));
-}
+};
 
-async function day3() {
+const generateResult = (command) => {
+  const validCommands = [...command.matchAll(matchForMultiply)];
+  const valuesToMultiply = extractValues(validCommands);
+
+  return multiplyValues(valuesToMultiply);
+};
+
+const day3 = async () => {
   const filePath = "./src/input/2024/input3.txt";
   const fileContent = await readFileAndCreateArray(filePath);
 
   const command = fileContent.join("");
-
-  const validCommands = [...command.matchAll(matchForMultiply)];
-
-  const valuesToMultiply = extractValues(validCommands);
-
-  const result1 = multiplyValues(valuesToMultiply);
+  const result1 = generateResult(command);
 
   console.log("result1", result1);
 
   ///////////////////////////////////////////////////// Part 2
 
-  const filteredSentence = command.replace(blockedParts, "");
-
-  const validCommandsPart2 = [...filteredSentence.matchAll(matchForMultiply)];
-
-  const valuesToMultiply2 = extractValues(validCommandsPart2);
-
-  const result2 = multiplyValues(valuesToMultiply2);
+  const filteredCommand = command.replace(blockedParts, "");
+  const result2 = generateResult(filteredCommand);
 
   console.log("result2", result2);
-}
+};
 
 module.exports = { day3 };

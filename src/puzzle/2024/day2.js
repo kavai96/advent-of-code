@@ -1,6 +1,6 @@
 const { readFileAndCreateArray } = require("../../helper/readFile");
 
-function isAllNumbersIncreasingOrDecreasing(numbers) {
+const isAllNumbersIncreasingOrDecreasing = (numbers) => {
   const increasing = numbers.every((number, index) => {
     if (index === 0) {
       return true;
@@ -18,9 +18,9 @@ function isAllNumbersIncreasingOrDecreasing(numbers) {
   });
 
   return increasing || decreasing;
-}
+};
 
-function isDifferenceInRange(numbers) {
+const isDifferenceInRange = (numbers) => {
   const inRange = numbers.every((number, index) => {
     if (index === 0) {
       return true;
@@ -32,7 +32,7 @@ function isDifferenceInRange(numbers) {
   });
 
   return inRange;
-}
+};
 
 const createRowVariants = (numbers) => {
   return numbers.map((_, idx) => {
@@ -42,7 +42,7 @@ const createRowVariants = (numbers) => {
   });
 };
 
-async function day2() {
+const day2 = async () => {
   const filePath = "./src/input/2024/input2.txt";
   const fileContent = await readFileAndCreateArray(filePath);
 
@@ -80,6 +80,6 @@ async function day2() {
   }, 0);
 
   console.log(part2);
-}
+};
 
 module.exports = { day2 };

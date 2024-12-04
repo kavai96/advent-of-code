@@ -1,6 +1,6 @@
 const { readFileAndCreateArray } = require("../../helper/readFile");
 
-function getSimilarity(number, numberArray) {
+const getSimilarity = (number, numberArray) => {
   const similarityCount = numberArray.reduce((init, actual) => {
     if (actual === number) {
       init += 1;
@@ -10,18 +10,17 @@ function getSimilarity(number, numberArray) {
   }, 0);
 
   return similarityCount;
-}
+};
 
-async function day1() {
+const day1 = async () => {
   const filePath = "./src/input/2024/input1.txt";
   const fileContent = await readFileAndCreateArray(filePath);
 
-  let leftColumn = [];
-  let rightColumn = [];
+  const leftColumn = [];
+  const rightColumn = [];
 
   fileContent.forEach((item) => {
-    const numbers = item.split(/\s+/);
-    const [left, right] = numbers.map(Number);
+    const [left, right] = item.split(/\s+/).map(Number);
 
     leftColumn.push(left);
     rightColumn.push(right);
@@ -46,6 +45,6 @@ async function day1() {
   });
 
   console.log("Second part", result2);
-}
+};
 
 module.exports = { day1 };
