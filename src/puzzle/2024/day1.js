@@ -29,22 +29,22 @@ const day1 = async () => {
   leftColumn.sort((a, b) => a - b);
   rightColumn.sort((a, b) => a - b);
 
-  const result1 = leftColumn.reduce((init, actual, index) => {
+  const part1 = leftColumn.reduce((init, actual, index) => {
     init += Math.abs(actual - rightColumn[index]);
     return init;
   }, 0);
 
-  console.log("First part", result1);
+  console.log("First part", part1);
 
-  /////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////// Part 2
 
-  let result2 = 0;
+  const part2 = leftColumn.reduce((init, actual) => {
+    init += actual * getSimilarity(actual, rightColumn);
 
-  leftColumn.forEach((number) => {
-    result2 += number * getSimilarity(number, rightColumn);
-  });
+    return init;
+  }, 0);
 
-  console.log("Second part", result2);
+  console.log("Second part", part2);
 };
 
 module.exports = { day1 };
