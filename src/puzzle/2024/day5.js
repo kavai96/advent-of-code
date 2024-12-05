@@ -1,62 +1,64 @@
 const { readFileAndCreateArray } = require("../../helper/readFile");
 
-const findLimitsForPage = (page, limits) => {
-  return limits.filter((limit) => limit.left === page || limit.right === page);
+const findRulesForPageOrder = (page, rules) => {
+  return rules.filter(
+    (rule) => rule.leftOrder === page || rule.rightOrder === page
+  );
 };
 
-const isPageOrderValid = (pageOrder, limits) => {
+const isPageOrderValid = (pageOrder, rules) => {
   return pageOrder.every((page) => {
-    const limitsForPage = findLimitsForPage(page, limits);
+    const rulesForPageOrder = findRulesForPageOrder(page, rules);
 
-    if (limitsForPage.length === 0) return true;
+    if (rulesForPageOrder.length === 0) return true;
 
-    return limitsForPage.every((limit) => {
+    return rulesForPageOrder.every((rule) => {
       const pageIndex = pageOrder.indexOf(page);
 
-      if (limit.left === page) {
-        const rightIndex = pageOrder.indexOf(limit.right);
+      if (rule.leftOrder === page) {
+        const rightIndex = pageOrder.indexOf(rule.rightOrder);
         return rightIndex === -1 || pageIndex < rightIndex;
       }
 
-      if (limit.right === page) {
-        const leftIndex = pageOrder.indexOf(limit.left);
+      if (rule.rightOrder === page) {
+        const leftIndex = pageOrder.indexOf(rule.leftOrder);
         return leftIndex === -1 || leftIndex < pageIndex;
       }
     });
   });
 };
 
-const rearrangeArray = (command, limits) => {
-  command.forEach((number) => {
-    const limitsForNumber = findLimitsForPage(number, limits);
-    if (limitsForNumber.length === 0) return;
+const rearrangePageOrder = (pageOrder, rules) => {
+  pageOrder.forEach((page) => {
+    const rulesForPageOrder = findRulesForPageOrder(page, rules);
+    if (rulesForPageOrder.length === 0) return;
 
-    limitsForNumber.forEach((limit) => {
-      const numberIndex = command.indexOf(number);
+    rulesForPageOrder.forEach((rule) => {
+      const pageIndex = pageOrder.indexOf(page);
 
-      if (limit.left === number) {
-        const rightIndex = command.indexOf(limit.right);
+      if (rule.leftOrder === page) {
+        const rightIndex = pageOrder.indexOf(rule.rightOrder);
 
-        if (rightIndex !== -1 && numberIndex > rightIndex) {
-          [command[numberIndex], command[rightIndex]] = [
-            command[rightIndex],
-            command[numberIndex],
+        if (rightIndex !== -1 && pageIndex > rightIndex) {
+          [pageOrder[pageIndex], pageOrder[rightIndex]] = [
+            pageOrder[rightIndex],
+            pageOrder[pageIndex],
           ];
 
-          rearrangeArray(command, limits);
+          rearrangePageOrder(pageOrder, rules);
         }
       }
 
-      if (limit.right === number) {
-        const leftIndex = command.indexOf(limit.left);
+      if (rule.rightOrder === page) {
+        const leftIndex = pageOrder.indexOf(rule.leftOrder);
 
-        if (leftIndex !== -1 && leftIndex > numberIndex) {
-          [command[numberIndex], command[leftIndex]] = [
-            command[leftIndex],
-            command[numberIndex],
+        if (leftIndex !== -1 && leftIndex > pageIndex) {
+          [pageOrder[pageIndex], pageOrder[leftIndex]] = [
+            pageOrder[leftIndex],
+            pageOrder[pageIndex],
           ];
 
-          rearrangeArray(command, limits);
+          rearrangePageOrder(pageOrder, rules);
         }
       }
     });
@@ -64,31 +66,31 @@ const rearrangeArray = (command, limits) => {
 };
 
 const processFileContent = (fileContent) => {
-  let limitEnd = false;
-  const limits = [];
+  let rulesEnd = false;
+  const rules = [];
   const pageOrders = [];
 
   fileContent.forEach((row) => {
     if (row === "") {
-      limitEnd = true;
+      rulesEnd = true;
       return;
     }
 
-    if (!limitEnd) {
-      const [left, right] = row.split("|").map(Number);
-      limits.push({ left, right });
+    if (!rulesEnd) {
+      const [leftOrder, rightOrder] = row.split("|").map(Number);
+      rules.push({ leftOrder, rightOrder });
     } else {
       const command = row.split(",").map(Number);
       pageOrders.push(command);
     }
   });
 
-  return { limits, pageOrders };
+  return { rules, pageOrders };
 };
 
-const calculatePart1 = (pageOrders, limits) => {
+const calculatePart1 = (pageOrders, rules) => {
   return pageOrders.reduce((prev, pageOrder) => {
-    if (isPageOrderValid(pageOrder, limits)) {
+    if (isPageOrderValid(pageOrder, rules)) {
       const middle = pageOrder[Math.floor(pageOrder.length / 2)];
       return prev + middle;
     }
@@ -97,12 +99,12 @@ const calculatePart1 = (pageOrders, limits) => {
   }, 0);
 };
 
-const calculatePart2 = (pageOrders, limits) => {
+const calculatePart2 = (pageOrders, rules) => {
   const invalidPageOrders = pageOrders.filter(
-    (command) => !isPageOrderValid(command, limits)
+    (command) => !isPageOrderValid(command, rules)
   );
 
-  invalidPageOrders.forEach((command) => rearrangeArray(command, limits));
+  invalidPageOrders.forEach((command) => rearrangePageOrder(command, rules));
 
   return invalidPageOrders.reduce((prev, pageOrder) => {
     const middle = pageOrder[Math.floor(pageOrder.length / 2)];
@@ -114,12 +116,12 @@ const day5 = async () => {
   const filePath = "./src/input/2024/input5.txt";
   const fileContent = await readFileAndCreateArray(filePath);
 
-  const { limits, pageOrders } = processFileContent(fileContent);
+  const { rules, pageOrders } = processFileContent(fileContent);
 
-  const part1 = calculatePart1(pageOrders, limits);
+  const part1 = calculatePart1(pageOrders, rules);
   console.log("part1", part1);
 
-  const part2 = calculatePart2(pageOrders, limits);
+  const part2 = calculatePart2(pageOrders, rules);
   console.log("part2", part2);
 };
 
