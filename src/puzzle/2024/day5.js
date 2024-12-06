@@ -80,8 +80,8 @@ const processFileContent = (fileContent) => {
       const [leftOrder, rightOrder] = row.split("|").map(Number);
       rules.push({ leftOrder, rightOrder });
     } else {
-      const command = row.split(",").map(Number);
-      pageOrders.push(command);
+      const pageOrder = row.split(",").map(Number);
+      pageOrders.push(pageOrder);
     }
   });
 
@@ -101,10 +101,12 @@ const calculatePart1 = (pageOrders, rules) => {
 
 const calculatePart2 = (pageOrders, rules) => {
   const invalidPageOrders = pageOrders.filter(
-    (command) => !isPageOrderValid(command, rules)
+    (pageOrder) => !isPageOrderValid(pageOrder, rules)
   );
 
-  invalidPageOrders.forEach((command) => rearrangePageOrder(command, rules));
+  invalidPageOrders.forEach((pageOrder) =>
+    rearrangePageOrder(pageOrder, rules)
+  );
 
   return invalidPageOrders.reduce((prev, pageOrder) => {
     const middle = pageOrder[Math.floor(pageOrder.length / 2)];
