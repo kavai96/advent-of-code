@@ -1,37 +1,37 @@
 const { readFileAndCreateArray } = require("../../helper/readFile");
 
-function generatePossibleEquasions(numbers, operators) {
+function generatePossibleEquations(numbers, operators) {
   const numOperators = numbers.length - 1;
   const totalCombinations = Math.pow(operators.length, numOperators);
 
-  const possibleEquasions = [];
+  const possibleEquations = [];
 
   for (let i = 0; i < totalCombinations; i++) {
-    let equasion = [numbers[0]];
+    let equation = [numbers[0]];
     let currentCombination = i;
 
     for (let j = 0; j < numOperators; j++) {
       const operatorIndex = currentCombination % operators.length;
-      equasion.push(operators[operatorIndex]);
-      equasion.push(numbers[j + 1]);
+      equation.push(operators[operatorIndex]);
+      equation.push(numbers[j + 1]);
       currentCombination = Math.floor(currentCombination / operators.length);
     }
 
-    possibleEquasions.push(equasion);
+    possibleEquations.push(equation);
   }
 
-  return possibleEquasions;
+  return possibleEquations;
 }
 
 const validateFirstPart = (numbers, result) => {
-  const possibleEquasions = generatePossibleEquasions(numbers, ["+", "*"]);
+  const possibleEquations = generatePossibleEquations(numbers, ["+", "*"]);
 
-  return possibleEquasions.some((equasion) => {
-    let operationResult = equasion[0];
+  return possibleEquations.some((equation) => {
+    let operationResult = equation[0];
 
-    for (let i = 0; i < equasion.length - 1; i += 2) {
-      const operator = equasion[i + 1];
-      const nextValue = equasion[i + 2];
+    for (let i = 0; i < equation.length - 1; i += 2) {
+      const operator = equation[i + 1];
+      const nextValue = equation[i + 2];
 
       switch (operator) {
         case "+":
@@ -50,18 +50,18 @@ const validateFirstPart = (numbers, result) => {
 };
 
 const validateSecondPart = (numbers, result) => {
-  const possibleEquasions = generatePossibleEquasions(numbers, [
+  const possibleEquations = generatePossibleEquations(numbers, [
     "+",
     "*",
     "||",
   ]);
 
-  return possibleEquasions.some((equasion) => {
-    let operationResult = equasion[0];
+  return possibleEquations.some((equation) => {
+    let operationResult = equation[0];
 
-    for (let i = 0; i < equasion.length - 1; i += 2) {
-      const operator = equasion[i + 1];
-      const nextValue = equasion[i + 2];
+    for (let i = 0; i < equation.length - 1; i += 2) {
+      const operator = equation[i + 1];
+      const nextValue = equation[i + 2];
 
       switch (operator) {
         case "+":
@@ -82,16 +82,16 @@ const validateSecondPart = (numbers, result) => {
   });
 };
 
-const countValidEquasions = (equasions, validator) => {
-  return equasions.reduce((acc, equasion) => {
-    const [result, numbers] = equasion;
+const countValidEquations = (equations, validator) => {
+  return equations.reduce((acc, equation) => {
+    const [result, numbers] = equation;
 
     const convertedResult = Number(result);
     const convertedNumbers = numbers.split(" ").map(Number);
 
-    const hasValidEquasion = validator(convertedNumbers, convertedResult);
+    const hasValidEquation = validator(convertedNumbers, convertedResult);
 
-    if (hasValidEquasion) {
+    if (hasValidEquation) {
       return (acc += convertedResult);
     }
 
@@ -99,16 +99,65 @@ const countValidEquasions = (equasions, validator) => {
   }, 0);
 };
 
+function validateEquationsDFS(
+  numbers,
+  operators,
+  result,
+  allowConcatenation = false
+) {
+  const dfs = (index, currentValue) => {
+    if (index === numbers.length) {
+      return currentValue === result;
+    }
+
+    for (const operator of operators) {
+      let nextValue;
+
+      switch (operator) {
+        case "+":
+          nextValue = currentValue + numbers[index];
+          break;
+        case "*":
+          nextValue = currentValue * numbers[index];
+          break;
+        case "||":
+          if (!allowConcatenation) continue;
+          nextValue = Number(`${currentValue}${numbers[index]}`);
+          break;
+        default:
+          throw new Error(`Unsupported operator: ${operator}`);
+      }
+
+      if (dfs(index + 1, nextValue)) {
+        return true; // Stop early if valid equation found
+      }
+    }
+
+    return false;
+  };
+
+  return dfs(1, numbers[0]); // Start DFS from the second number
+}
+
 const day7 = async () => {
   const filePath = "./src/input/2024/input7.txt";
   const fileContent = await readFileAndCreateArray(filePath);
 
-  const equasions = fileContent.map((row) => row.split(": "));
+  const equations = fileContent.map((row) => row.split(": "));
 
-  const part1 = countValidEquasions(equasions, validateFirstPart);
+  /* const part1 = countValidEquations(equations, validateFirstPart);
+  const part2 = countValidEquations(equations, validateSecondPart);
+ */
+
+  const part1 = countValidEquations(equations, (numbers, result) =>
+    validateEquationsDFS(numbers, ["+", "*"], result)
+  );
+
+  const part2 = countValidEquations(equations, (numbers, result) =>
+    validateEquationsDFS(numbers, ["+", "*", "||"], result, true)
+  );
+
   console.log("part1", part1);
-
-  const part2 = countValidEquasions(equasions, validateSecondPart);
   console.log("part2", part2);
 };
 

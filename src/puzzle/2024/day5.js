@@ -71,7 +71,7 @@ const processFileContent = (fileContent) => {
   const pageOrders = [];
 
   fileContent.forEach((row) => {
-    if (row === "") {
+    if (row.trim() === "") {
       rulesEnd = true;
       return;
     }
