@@ -13,60 +13,60 @@ const directionIndexes = new Map([
 const getNextDirection = (currentDirection) =>
   directions[(directions.indexOf(currentDirection) + 1) % directions.length];
 
-const findElementPosition = (map) => {
-  const rowIndex = map.findIndex((row) =>
+const findElementPosition = (grid) => {
+  const rowIndex = grid.findIndex((row) =>
     row.some((direction) => directions.includes(direction))
   );
 
-  const colIndex = map[rowIndex].findIndex((direction) =>
+  const colIndex = grid[rowIndex].findIndex((direction) =>
     directions.includes(direction)
   );
 
   return [rowIndex, colIndex];
 };
 
-const traverseMap = (map) => {
-  const startingIndex = findElementPosition(map);
+const traverseGrid = (grid) => {
+  const startingIndex = findElementPosition(grid);
 
   let [i, j] = startingIndex;
 
   while (true) {
-    const direction = map[i][j];
+    const direction = grid[i][j];
     const [di, dj] = directionIndexes.get(direction);
     const [nextI, nextJ] = [i + di, j + dj];
-    const element = map[nextI]?.[nextJ];
+    const element = grid[nextI]?.[nextJ];
 
     //Edge found
     if (!element) {
-      map[i][j] = "X";
+      grid[i][j] = "X";
       break;
     }
 
     if (element === "#") {
-      map[i][j] = getNextDirection(direction);
+      grid[i][j] = getNextDirection(direction);
       continue;
     }
 
-    map[i][j] = "X";
+    grid[i][j] = "X";
     [i, j] = [nextI, nextJ];
-    map[i][j] = direction;
+    grid[i][j] = direction;
   }
 
-  return map.flat().join("").match(/X/g).length;
+  return grid.flat().join("").match(/X/g).length;
 };
 
 const serializePosition = (direction, i, j) => `${direction},${i},${j}`;
 
-const searchInfinite = (searchMap) => {
-  const [startI, startJ] = findElementPosition(searchMap);
+const searchInfinite = (searchGrid) => {
+  const [startI, startJ] = findElementPosition(searchGrid);
   let [i, j] = [startI, startJ];
   const visitedPositions = new Set();
 
   while (true) {
-    const direction = searchMap[i][j];
+    const direction = searchGrid[i][j];
     const [di, dj] = directionIndexes.get(direction);
     const [nextI, nextJ] = [i + di, j + dj];
-    const element = searchMap[nextI]?.[nextJ];
+    const element = searchGrid[nextI]?.[nextJ];
 
     if (!element) break; //Edge reached
 
@@ -78,25 +78,25 @@ const searchInfinite = (searchMap) => {
       }
 
       visitedPositions.add(positionKey);
-      searchMap[i][j] = getNextDirection(direction);
+      searchGrid[i][j] = getNextDirection(direction);
       continue;
     }
 
     [i, j] = [nextI, nextJ];
-    searchMap[i][j] = direction;
+    searchGrid[i][j] = direction;
   }
 };
 
-const countInfiniteRegions = (map) => {
+const countInfiniteRegions = (grid) => {
   let infiniteCount = 0;
 
-  for (let i = 0; i < map.length; i++) {
-    for (let j = 0; j < map[i].length; j++) {
-      if (map[i][j] === ".") {
-        const tempMap = map.map((row) => [...row]);
-        tempMap[i][j] = "#";
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[i].length; j++) {
+      if (grid[i][j] === ".") {
+        const tempGrid = grid.map((row) => [...row]);
+        tempGrid[i][j] = "#";
 
-        if (searchInfinite(tempMap)) {
+        if (searchInfinite(tempGrid)) {
           infiniteCount++;
         }
       }
@@ -110,15 +110,15 @@ const day6 = async () => {
   const filePath = "./src/input/2024/input6.txt";
   const fileContent = await readFileAndCreateArray(filePath);
 
-  const mapForFirstPart = fileContent.map((row) => row.split(""));
-  const mapForSecondPart = fileContent.map((row) => row.split(""));
+  const gridForFirstPart = fileContent.map((row) => row.split(""));
+  const gridForSecondPart = fileContent.map((row) => row.split(""));
 
-  const part1 = traverseMap(mapForFirstPart);
+  const part1 = traverseGrid(gridForFirstPart);
   console.log("part1", part1);
 
   ///////////////////////////////////////// Part 2
 
-  const part2 = countInfiniteRegions(mapForSecondPart);
+  const part2 = countInfiniteRegions(gridForSecondPart);
   console.log("part2", part2);
 };
 
