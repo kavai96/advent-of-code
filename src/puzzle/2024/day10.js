@@ -14,22 +14,12 @@ const findRightPaths = (i, j, grid, pathTrackers) => {
     return;
   }
 
-  const validPaths = [];
-
   coordinates.forEach(([x, y]) => {
     const checkingElement = grid[i + x]?.[j + y];
 
     if (checkingElement && checkingElement - grid[i][j] === 1) {
-      validPaths.push([i + x, j + y]);
+      findRightPaths(i + x, j + y, grid, pathTrackers);
     }
-  });
-
-  if (validPaths.length === 0) {
-    return;
-  }
-
-  validPaths.forEach(([i, j]) => {
-    findRightPaths(i, j, grid, pathTrackers);
   });
 };
 
