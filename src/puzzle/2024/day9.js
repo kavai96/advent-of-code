@@ -4,12 +4,10 @@ const rearrange = (input) => {
   {
     let leftIndex = -1;
     let rightIndex = -1;
-
-    let notFound = true;
     let i = 0;
     let j = input.length - 1;
 
-    while (notFound) {
+    while (true) {
       if (input[i] === "." && leftIndex < 0) {
         leftIndex = i;
       } else if (input[i] !== "." && leftIndex === -1) {
@@ -34,7 +32,7 @@ const rearrange = (input) => {
       }
 
       if (i > j) {
-        notFound = false;
+        break; // middle reached
       }
     }
   }

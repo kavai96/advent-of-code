@@ -7,9 +7,10 @@ const { day6 } = require("./puzzle/2024/day6");
 const { day7 } = require("./puzzle/2024/day7");
 const { day8 } = require("./puzzle/2024/day8");
 const { day9 } = require("./puzzle/2024/day9");
+const { day10 } = require("./puzzle/2024/day10");
 
 async function run() {
-  await day9();
+  await day10();
   process.exit(0);
 }
 
