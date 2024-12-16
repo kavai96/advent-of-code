@@ -1,4 +1,6 @@
-Button A: X+49, Y+95
+const { readFileAndCreateArray } = require("../../helper/readFile");
+
+const test = `Button A: X+49, Y+95
 Button B: X+28, Y+16
 Prize: X=3738, Y=5486
 
@@ -1277,3 +1279,61 @@ Prize: X=13561, Y=13299
 Button A: X+90, Y+17
 Button B: X+35, Y+92
 Prize: X=3055, Y=2541
+
+`;
+function parse(source) {
+  return source
+    .trim()
+    .split("\n\n")
+    .map((segment) => {
+      const [, ax, ay, bx, by, X, Y] = segment.match(
+        /Button A: X\+(\d+), Y\+(\d+)\nButton B: X\+(\d+), Y\+(\d+)\nPrize: X=(\d+), Y=(\d+)/
+      );
+      return {
+        a: [Number(ax), Number(ay)],
+        b: [Number(bx), Number(by)],
+        prize: [Number(X), Number(Y)],
+      };
+    });
+}
+
+function minTokensToWin([ax, ay], [bx, by], [X, Y]) {
+  if ([ax, ay, bx, by].some((v) => v === 0)) return null;
+  const tb = Math.floor((ay * X - ax * Y) / (ay * bx - ax * by));
+  const ta = Math.floor((X - bx * tb) / ax);
+  return ax * ta + bx * tb === X && ay * ta + by * tb === Y ? { ta, tb } : null;
+}
+
+function minCostToWin(a, b, prize, prizeDelta = 0) {
+  const tokens = minTokensToWin(
+    a,
+    b,
+    prize.map((p) => p + prizeDelta)
+  );
+  return tokens ? tokens.ta * 3 + tokens.tb : 0;
+}
+
+function part1(data) {
+  return data.reduce(
+    (sum, { a, b, prize }) => sum + minCostToWin(a, b, prize),
+    0
+  );
+}
+
+function part2(data) {
+  return data.reduce(
+    (sum, { a, b, prize }) => sum + minCostToWin(a, b, prize, 10000000000000),
+    0
+  );
+}
+
+const day13 = async () => {
+  const filePath = "./src/input/2024/input13.txt";
+  const fileContent = await readFileAndCreateArray(filePath);
+
+  const source = parse(test);
+
+  console.log("source", part1(source));
+};
+
+module.exports = { day13 };
