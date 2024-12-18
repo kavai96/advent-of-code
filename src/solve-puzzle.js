@@ -17,7 +17,7 @@ const { day16 } = require("./puzzle/2024/day16");
 const { day18 } = require("./puzzle/2024/day18");
 
 async function run() {
-  await day18();
+  await day16();
   process.exit(0);
 }
 

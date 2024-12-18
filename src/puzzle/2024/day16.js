@@ -1,12 +1,4 @@
 const { readFileAndCreateArray } = require("../../helper/readFile");
-const { printGrid } = require("../../helper/printGrid");
-
-const directions = new Map([
-  ["-1-0", "^"],
-  ["0-1", ">"],
-  ["1-0", "v"],
-  ["0--1", "<"],
-]);
 
 const findElementPosition = (grid) => {
   const rowIndex = grid.findIndex((row) => row.some((node) => node === "S"));
@@ -16,84 +8,115 @@ const findElementPosition = (grid) => {
   return [rowIndex, colIndex];
 };
 
-const coordinates = [
-  [-1, 0], //up
-  [0, 1], //right
-  [1, 0], //down
-  [0, -1], //left
-];
-
-const DIR_TO_MOVEMENT = {
-  0: [-1, 0], // UP
-  1: [0, 1], // RIGHT
-  2: [1, 0], // DOWN
-  3: [0, -1], // LEFT
+const coordinates = {
+  0: [-1, 0], // up
+  1: [0, 1], // right
+  2: [1, 0], // down
+  3: [0, -1], // left
 };
+
+function findAllPaths(maze) {
+  const rows = maze.length;
+  const cols = maze[0].length;
+  const allPaths = [];
+  const path = [];
+
+  let lowestScore = Infinity;
+
+  const scoreMap = new Map();
+
+  function isValidMove(x, y, visited, direction, score, scoreMap) {
+    const key = `${x}-${y}-${direction}`;
+
+    return (
+      x >= 0 &&
+      y >= 0 &&
+      x < rows &&
+      y < cols &&
+      maze[x][y] !== "#" &&
+      !visited.has(`${x}-${y}`) &&
+      (!scoreMap.get(key) || score <= scoreMap.get(key))
+    );
+  }
+
+  function traverseMaze(x, y, visited, score, direction) {
+    path.push([x, y]);
+    visited.add(`${x}-${y}`);
+    const key = `${x}-${y}-${direction}`;
+
+    scoreMap.set(key, score);
+
+    if (maze[x][y] === "E") {
+      if (score < lowestScore) {
+        lowestScore = score;
+      }
+
+      allPaths.push([score, ...path]);
+    } else {
+      const availableDirections = [
+        direction,
+        (direction + 1) % 4,
+        (direction + 3) % 4,
+      ];
+
+      for (const availableDirecion of availableDirections) {
+        const [dx, dy] = coordinates[availableDirecion];
+        const newX = x + dx;
+        const newY = y + dy;
+
+        const nextScore = score + (direction === availableDirecion ? 1 : 1001);
+
+        if (
+          isValidMove(
+            newX,
+            newY,
+            visited,
+            availableDirecion,
+            nextScore,
+            scoreMap
+          )
+        ) {
+          traverseMaze(newX, newY, visited, nextScore, availableDirecion);
+        }
+      }
+    }
+
+    path.pop();
+    visited.delete(`${x}-${y}`);
+  }
+
+  const [startI, startJ] = findElementPosition(maze);
+  const visited = new Set();
+  traverseMaze(startI, startJ, visited, 0, 1);
+
+  const bestPaths = allPaths.filter((path) => {
+    const [score] = path;
+    return score === lowestScore;
+  });
+
+  return [lowestScore, bestPaths];
+}
 
 const day16 = async () => {
   const filePath = "./src/input/2024/input16.txt";
   const fileContent = await readFileAndCreateArray(filePath);
 
-  const grid = fileContent.map((row) => row.split(""));
+  const maze = fileContent.map((row) => row.split(""));
 
-  const visited = new Set();
+  const [lowestScore, paths] = findAllPaths(maze);
 
-  const [startI, startJ] = findElementPosition(grid);
-  const queue = [[startI, startJ, 1, 1]];
+  const bestPathNodes = new Set();
 
-  let dist = 0;
-  let dirch = 0;
+  paths.forEach((path) => {
+    const [_, ...rest] = path;
 
-  let best = 99999999;
+    rest.forEach(([x, y]) => {
+      bestPathNodes.add(`${x}-${y}`);
+    });
+  });
 
-  const ptWiseMinScore = {};
-
-  while (queue.length > 0) {
-    const newQueue = [];
-    const [x, y, score, direction] = queue.shift();
-
-    const posKey = `${x},${y}`;
-    const cacheKey = `${posKey},${direction}`;
-
-    if (
-      x < 0 ||
-      y < 0 ||
-      x >= grid.length ||
-      y >= grid[0].length ||
-      grid[x][y] === "#" ||
-      ptWiseMinScore[cacheKey] < score
-    ) {
-      continue;
-    }
-
-    ptWiseMinScore[cacheKey] = score;
-
-    if (grid[x][y] === "E") {
-      console.log("HERE", score);
-      continue;
-    }
-
-    const availableMoves = [
-      direction,
-      (direction + 1) % 4,
-      (direction + 3) % 4,
-    ];
-
-    for (const move of availableMoves) {
-      const [dx, dy] = DIR_TO_MOVEMENT[move];
-      const [newX, newY] = [x + dx, y + dy];
-
-      const nextScore = score + (direction === move ? 1 : 1001);
-      queue.push([newX, newY, nextScore, move]);
-    }
-  }
-
-  console.log("distance", dist);
-  console.log("directionChange", dirch);
-  console.log(dirch * 1000 + dist);
-  console.log(best);
-
-  //printGrid(grid);
+  console.log("part1", lowestScore);
+  console.log("part2", bestPathNodes.size);
 };
 
 module.exports = { day16 };
